@@ -3,30 +3,22 @@ layout: mypost
 title: 关于我
 ---
 
-> Hello 陌生人，欢迎访问 TMaize Blog
-
-该博客托管于 GitHub Page，国内默认解析到腾讯云，以保证国内外的访问速度。留言页面使用腾讯的“吐个槽”，另外使用的腾讯的 MTA 分析工具统计访问量
-
-主题是自己写的，见[tmaize-blog](https://github.com/TMaize/tmaize-blog)，喜欢的话可以给个小星星。另外欢迎添加友链，在[留言板](chat.html)留言即可
+> Hello 
 
 ## 相关技能
 
-- 熟悉 JavaScript 语言， 熟练使用 Vue 全家桶,jQuery 等前端框架
+- 熟悉 JavaScript、CSS3、H5， 熟练使用 Vue，React并有实际项目上线经验，并对框架原理有一定了解，有较丰富的移动端H5开发经验
 
-- 熟悉 Java，NodeJs,Go 等后端语言
+- 了解 NodeJs
 
-- 后端框架 Spring，Hibernate，JFinal，Mybatis 略有了解
+- 能够使用 Git 对代码版本进行控制
 
-- 数据库方面能熟练使用 MySQL,Oracle，MongoDB
+- 英语流利，曾在外企就职一年以上
 
-- Linux 的简单使用，各种服务的搭建
-
-- 能够使用 Git/SVN 对代码版本进行控制
+## 个人爱好
+- 阅读，钢琴，学外语（日语可无障碍观看日文生肉番剧，可进行简单的交流）
 
 ## 联系我
 
-- QQ&nbsp;&nbsp;&nbsp;&nbsp;: 1772314831
+- QQ&nbsp;&nbsp;&nbsp;&nbsp;: 2453985887
 
-- Email&nbsp;: [tmaize@qq.com](http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=YBQNAQkaBSAREU4DDw0)
-
-- GitHub: [https://github.com/tmaize](https://github.com/tmaize)
