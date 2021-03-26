@@ -1,7 +1,7 @@
 ---
 layout: mypost
 title:  "Vue 原理"
-date:   2021-03-23 14:07:24 +0800
+date:   2021-03-24 14:07:24 +0800
 categories: ['前端', '面试', 'Vue']
 ---
 
@@ -323,6 +323,9 @@ b. 都不命中，对比旧节点中是否有与新节点key值相同的节点�
 ## 模板编译
 - vue template complier 将模板编译为render函数
 - 执行render函数生成vnode
+- 基于vnode再执行patch和diff
+- 使用webpack vue-loader,会在开发环境下编译模板
+- vue组件可以用render代替template
 
 with语法
 ```js
@@ -341,5 +344,80 @@ with(obj) {
 慎用，打破了作用域规则，易读性变差
 ```
 
-## 渲染过程
+_c createElement  --- h函数   ->   返回vnode
+
+vue源码中编译用到的函数
+```js
+// // 从 vue 源码中找到缩写函数的含义
+function installRenderHelpers (target) {
+    target._o = markOnce;
+    target._n = toNumber;
+    target._s = toString;
+    target._l = renderList;
+    target._t = renderSlot;
+    target._q = looseEqual;
+    target._i = looseIndexOf;
+    target._m = renderStatic;
+    target._f = resolveFilter;
+    target._k = checkKeyCodes;
+    target._b = bindObjectProps;
+    target._v = createTextVNode;
+    target._e = createEmptyVNode;
+    target._u = resolveScopedSlots;
+    target._g = bindObjectListeners;
+    target._d = bindDynamicKeys;
+    target._p = prependModifier;
+}
+```
+
+模板编译示例：
+```js
+const template = `<p>{{message}}</p>`
+
+const res = compiler.compile(template)
+console.log(res.render)
+
+/***返回***/
+with(this)
+{return createElement('p',
+              [createTextVNode(toString(message))]
+              )
+}
+
+```
+
+## 组件渲染/更新过程
+- 响应式：
+  1. 利用difineProperty监听，传入要监听的对象、属性、getter和setter函数
+  2. getter函数取值，setter函数赋值
+  3. 在监听属性的同时，对值进行监听，实现深度监听
+  4. 重新定义数组原型并扩展其原型链上的方法，实现数组的响应式
+  5. 关键函数 
+    defineReactive(target, key, value) 
+    observer(target)
+    updateView()
+
+- 模板编译：
+  1. 引入vue-template-compiler，将模板编译成render函数
+  2. 执行render函数，生成vnode
+  3. 利用patch和diff实现vnode的更新，从而实现视图的更新和渲染
+
+- vdom
+  1. patch(elem, vnode)
+  2. patch(vnode, newVnode)
+
+### 初次渲染
+1. 解析模板为render函数（一般在开发环境下打包完成，少数demo在浏览器运行时完成）
+2. 触发响应式（监听data的属性 getter setter——初次渲染暂未触发）
+3. 执行render函数，生成vnode, patch(elem, vnode)
+
+### 更新
+1. 修改data，触发setter(之前初次渲染阶段getter已被监听)
+2. 重新执行render函数，生成newVnode
+3. patch(vnode, newVnode)
+
+![vue渲染更新全流程](vue-render-flow.png)
+
+###
+
 ## 前端路由
