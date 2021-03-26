@@ -420,6 +420,53 @@ with(this)
 
 <img src="./posts/2021/03/26/vue-render-flow.jpg" alt="vue渲染更新全流程" title="vue渲染更新全流程">
 
-###
+### 异步渲染
+- $nextTick 渲染完成后的回调函数，可以第一时间拿到最新的DOM
+- data的修改会被汇总，一次性更新视图
+- 减少DOM操作次数，提高性能
 
 ## 前端路由
+利用关键函数，监控到路由变化（hash, path）时，根据监控到的路由实现相应组件的渲染
+
+### 网页url组成
+例：http://127.0.0.1:8881/01-hash.html?a=100&b=20#/aaa/bbb
+
+| 组成      | 示例 |
+| ----------- | ----------- |
+| protocal      | http:       |
+| hostname   | 127.0.0.1        |
+| host   | 127.0.0.1:8881        |
+| port   | 8881        |
+| pathname   | 01-hash.html        |
+| search   | ?a=100&b=20        |
+| hash   | #/aaa/bbb        |
+
+### hash的特点
+- hash 变化会触发页面跳转
+- hash 变化不会刷新页面，SPA必需的特点
+- hash 永远不会提交到server端（前端自生自灭）
+
+关键原理
+```js
+// hash 变化，包括：
+// a. JS 修改 url
+// b. 手动修改 url 的 hash
+// c. 浏览器前进、后退
+window.onhashchange = (event) => {
+    console.log('old url', event.oldURL)
+    console.log('new url', event.newURL)
+
+    console.log('hash:', location.hash)
+}
+```
+
+### H5 history
+- 用url规范的路由，跳转时不刷新页面
+- history.pushState
+- window.onpopstate
+- 需要后端支持，无论前端访问什么路径，都返回主文件index.html
+
+### 总结
+- to B 推荐hash，简单易用，对URL规范不敏感
+- to C 可以考虑H5，SEO友好，需要服务端支持
+- 考虑成本和收益
