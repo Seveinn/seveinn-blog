@@ -416,7 +416,9 @@ with(this)
 2. 重新执行render函数，生成newVnode
 3. patch(vnode, newVnode)
 
-![vue渲染更新全流程](vue-render-flow.png)
+![vue渲染更新全流程](vue-render-flow.jpg)
+
+<img src="./posts/2021/03/26/vue-render-flow.jpg" alt="vue渲染更新全流程" title="vue渲染更新全流程">
 
 ###
 
