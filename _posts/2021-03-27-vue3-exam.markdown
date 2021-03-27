@@ -1,0 +1,208 @@
+---
+layout: mypost
+title:  "前端面试——Vue3 真题"
+date:   2021-03-27 15:07:24 +0800
+categories: ['前端', '面试', 'Vue', '真题', ]
+---
+
+## Vue3 比 Vue2 有什么优势
+- **性能更好**
+- 体积更小
+- 更好的TS支持
+- 更好的代码组织
+- 更好的逻辑抽离
+- 更多的新功能
+
+## Vue3 生命周期
+### Options API 生命周期
+- beforeDestroy -> beforeUnmount
+- destroyed -> unmounted
+- 其他沿用Vue2的生命周期
+
+### Composition Api生命周期
+- setup
+- onBeforeMount
+- onBeforeMounted
+- onBeforeUpdate
+- onUpdated
+- onBeforeUnmount
+- onUnmounted
+
+## Composition API 和 Options API 对比
+### Composition API 带来了什么
+- 更好的代码组织
+- 更好的逻辑复用
+- 更好的类型推导
+### 如何选择
+- 不建议共用，会引起混乱
+- 小型项目、业务逻辑简单，用Options API
+- 中大型项目、逻辑复杂，用Composition API
+### 不要误解Composition API
+- 高阶技巧
+- 为解决复杂逻辑而设计
+- 类似于React Hooks在React中的地位
+
+## ref toRef toRefs
+### ref (生成一个响应式的变量)
+- 生成值类型的响应式数据
+- 可用于模板和reactive
+- 通过.value修改值
+```html
+<template>
+    <p>ref demo {{ageRef}} {{state.name}}</p>
+</template>
+
+<script>
+import { ref, reactive } from 'vue'
+
+export default {
+    name: 'Ref',
+    setup() {
+        const ageRef = ref(20) // 值类型 响应式
+        const nameRef = ref('双越')
+
+        const state = reactive({
+            name: nameRef
+        })
+
+        setTimeout(() => {
+            console.log('ageRef', ageRef.value)
+
+            ageRef.value = 25 // .value 修改值
+            nameRef.value = '双越A'
+        }, 1500);
+
+        return {
+            ageRef,
+            state
+        }
+    }
+}
+</script>
+```
+
+```html
+<template>
+    <p ref="elemRef">我是一行文字</p>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue'
+
+export default {
+    name: 'RefTemplate',
+    setup() {
+        const elemRef = ref(null)
+
+        onMounted(() => {
+            console.log('ref template', elemRef.value.innerHTML, elemRef.value)
+        })
+
+        return {
+            elemRef
+        }
+    }
+}
+</script>
+```
+
+### toRef (将响应式对象中的某个属性转换为响应式)
+- 针对一个响应式对象(reactive封装)的prop
+- 创建一个ref,具有响应式
+- 两者保持引用关系
+```html
+<template>
+    <p>toRef demo - {{ageRef}} - {{state.name}} {{state.age}}</p>
+</template>
+
+<script>
+import { ref, toRef, reactive } from 'vue'
+
+export default {
+    name: 'ToRef',
+    setup() {
+        const state = reactive({
+            age: 20,
+            name: '双越'
+        })
+
+        const ageRef = toRef(state, 'age')
+
+        setTimeout(() => {
+            state.age = 25
+        }, 1500)
+
+        setTimeout(() => {
+            ageRef.value = 30 // .value 修改值
+        }, 3000)
+
+        return {
+            state,
+            ageRef
+        }
+    }
+}
+</script>
+```
+
+### toRefs
+- 将响应式对象(reactive封装)转换为普通对象
+- 对象的每个prop都是对应的ref
+- 两者保持引用关系
+- 可以在不破坏对象属性的响应式的情况下解构出对应的属性值
+```HTML
+<template>
+    <p>toRefs demo {{age}} {{name}}</p>
+</template>
+
+<script>
+import { ref, toRef, toRefs, reactive } from 'vue'
+
+export default {
+    name: 'ToRefs',
+    setup() {
+        const state = reactive({
+            age: 20,
+            name: '双越'
+        })
+
+        const stateAsRefs = toRefs(state) // 将响应式对象，变成普通对象
+
+        setTimeout(() => {
+            state.age = 25
+        }, 1500)
+
+        return stateAsRefs
+    }
+}
+</script>
+```
+
+
+### 最佳使用方式(将响应式对象中所有属性转换为响应式)
+- 用reactive做对象的响应式，用ref做值类型响应式
+- setup中返回toRefs(state),或者toRef(state, 'xxx')
+- ref的变量命名用xxxRef
+- 合成函数返回响应式对象时，使用toRefs
+
+### 进阶，深入理解
+- 为何需要ref
+- 为何需要.value
+- 为何需要toRef toRefs
+
+
+## Vue3升级了哪些重要的功能
+
+## Composition API 如何实现代码逻辑复用
+
+## Vue3如何实现响应式
+
+## watch 和 watchEffect 的区别
+
+## setup 中如何获取组件实例
+
+## Vue3 为何比 Vue2 快
+
+## Vite 是什么
+
+## Compositon API 和 React Hooks 的对比

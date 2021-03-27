@@ -106,7 +106,7 @@ export default {
 
 ## 何时使用beforeDestory
 - 解绑自定义事件
-- 清楚定时器
+- 清除定时器
 - 解绑自定义的DOM事件，如window scroll
 
 ## 什么是作用域插槽
@@ -223,3 +223,5 @@ routes: [
 - 使用Vue-loader在开发环境做模板编译(预编译)
 - webpack层面的优化
 - 前端通用性能优化，图片懒加载等
+- 使用SSR
+
