@@ -186,16 +186,102 @@ export default {
 - 合成函数返回响应式对象时，使用toRefs
 
 ### 进阶，深入理解
-- 为何需要ref
-- 为何需要.value
-- 为何需要toRef toRefs
+#### 为何需要ref
+- 返回值类型，会丢失响应式
+- 如在setup,computed,合成函数，都有可能返回值类型
+- Vue如果不定义ref,用户将自造ref,反而混乱 
 
+#### 为何需要.value
+- ref是一个对象（不丢失响应式），value存储值
+- 通过.value属性的get和set实现响应式
+- 用于模板、reactive时（会经过vue自身的编译，vue可自动识别转换成.value），不需要.value,其他情况都需要
+
+#### 为何需要toRef toRefs
+- 初衷：不丢失响应式的情况下，把对象数据分解/扩散
+- 前提：针对响应式对象(reactive封装)，非普通对象
+- 注意：不是创造响应式，而是延续响应式
 
 ## Vue3升级了哪些重要的功能
+- createAPP——vue初始化方法
+- emits属性——子组件抛出事件新增配置
+- 生命周期——销毁更改为unmount
+- 多事件——元素可以绑定多个事件
+- Fragement——片元，模板中可以写多个元素
+- 移除.Sync
+- 异步组件的写法——新增异步组件引入的方法
+- 移除filter
+- Teleport——传送，挂载全局组件到body
+- Suspense——延迟，利用插槽实现了组件异步加载的loading状态
+- Composition API
+```
+- reactive
+- ref相关
+- readonly
+- watch和watchEffect
+- setup
+- 生命周期钩子函数
+```
 
 ## Composition API 如何实现代码逻辑复用
+- 抽离逻辑代码到一个函数
+- 函数命名约定为useXXX格式
+- 在setup中引用useXXX函数
 
 ## Vue3如何实现响应式
+### Object.defineProperty的缺点
+- 深度监听需要一次性递归
+- 无法监听新增/删除属性（需要使用Vue.set Vue.delete）
+- 无法监听原生数组，需要特殊处理（定义新的数组原型并扩展数组方法）
+
+### Proxy实现响应式
+```JS
+// const data = {
+//     age: 20,
+//     name: 'xxx',
+// }
+
+const data = ['a', 'b', 'c'];
+
+const proxyData = new Proxy(data, {
+    get(target, key, receiver) {
+        const result = Reflect.get(target, key, receiver);
+
+        // 只打印本身的，非原型上的属性
+        const ownKeys = Reflect.ownKeys(target);
+        if(ownKeys.includes(key)) {
+            console.log('get', key);
+        }
+        return result; //返回结果
+    },
+    set(target, key, val, receiver) {
+        // 重复的数据不处理
+        const oldVal = target[key];
+        if(val === oldVal) {
+            return true;
+        }
+
+        const result = Reflect.set(target, key, val, receiver);
+        console.log('set', key, val);
+        console.log('result', result);
+        return result; //是否设置成功
+    },
+    deleteProperty(target, key) {
+        const result = Reflect.deleteProperty(target, key);
+        console.log('delete property', key);
+        console.log('result', result);
+        return result; //是否删除成功
+    }
+})
+
+// proxyData.age = 23;
+
+proxyData.push('d');
+```
+
+Reflect作用
+- 和Proxy能力一一对应
+- 规范化、标准化、函数式
+- 代替Object上的工具函数
 
 ## watch 和 watchEffect 的区别
 
