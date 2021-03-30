@@ -207,7 +207,7 @@ export default {
 - 生命周期——销毁更改为unmount
 - 多事件——元素可以绑定多个事件
 - Fragement——片元，模板中可以写多个元素
-- 移除.Sync
+- 移除.Sync Vue2中父组件和子组件某个属性的双向绑定(语法糖) -> Vue3 v-model:age="age"
 - 异步组件的写法——新增异步组件引入的方法
 - 移除filter
 - Teleport——传送，挂载全局组件到body
@@ -283,12 +283,184 @@ Reflect作用
 - 规范化、标准化、函数式
 - 代替Object上的工具函数
 
+```JS
+function reactive(target = {}) {
+    if(typeof target !== "object" || target == null) {
+        return target;
+    }
+
+    const proxyConf = {
+        get(target, key, receiver) {
+            const result = Reflect.get(target, key, receiver);
+    
+            // 只打印本身的，非原型上的属性
+            const ownKeys = Reflect.ownKeys(target);
+            if(ownKeys.includes(key)) {
+                console.log('get', key);
+            }
+
+            // 深度监听
+            return reactive(result); //返回结果
+        },
+        set(target, key, val, receiver) {
+            // 重复的数据不处理
+            const oldVal = target[key];
+            if(val === oldVal) {
+                return true;
+            }
+
+            const ownKeys = Reflect.ownKeys(target);
+            if(ownKeys.includes(key)) {
+                console.log('已有的key');
+            } else {
+                console.log('新增的key');
+            }
+    
+            const result = Reflect.set(target, key, val, receiver);
+            console.log('set', key, val);
+            console.log('result', result);
+            return result; //是否设置成功
+        },
+        deleteProperty(target, key) {
+            const result = Reflect.deleteProperty(target, key);
+            console.log('delete property', key);
+            console.log('result', result);
+            return result; //是否删除成功
+        }
+    }
+
+    return new Proxy(data, proxyConf);
+}
+
+const proxyData = reactive(data);
+```
+
+- 深度监听设置在get中，只有用到的时候才会触发深度监听，性能更好
+- 在set中利用Relect.ownkeys判断是不是已有的key，可实现监听新增和删除属性
+- Reflect本身即可监听数组的变化
+- 无法兼容所有浏览器，无法polyfill
+
 ## watch 和 watchEffect 的区别
+- 两者都可监听data属性变化
+- watch 需要明确监听哪个属性
+- watchEffect会根据其中的属性，自动监听其变化
+
+### watch监听响应式变量
+```JS
+    const numberRef = ref(100)
+    const state = reactive({
+        name: '双越',
+        age: 20
+    })
+        
+    watch(
+        numberRef, 
+        (newNumber, oldNumber) => {
+            console.log('ref watch', newNumber, oldNumber)
+        }
+        // , {
+        //     immediate: true // 初始化之前就监听，可选
+        // }
+    )
+    watch(
+        // 第一个参数，确定要监听哪个属性
+        () => state.age,
+
+        // 第二个参数，回调函数
+        (newAge, oldAge) => {
+            console.log('state watch', newAge, oldAge)
+        },
+
+        // 第三个参数，配置项
+        {
+            immediate: true, // 初始化之前就监听，可选
+            // deep: true // 深度监听
+        }
+    )
+```
+
+### watchEffect
+初始化时会执行一次，收集要监听的数据，数据更改会触发对应的监听（不用手动指定依赖）
+```JS
+ watchEffect(() => {
+            // 初始化时，一定会执行一次（收集要监听的数据）
+            console.log('hello watchEffect')
+        })
+        watchEffect(() => {
+            console.log('state.name', state.name)
+        })
+        watchEffect(() => {
+            console.log('state.age', state.age)
+        })
+        watchEffect(() => {
+            console.log('state.age', state.age)
+            console.log('state.name', state.name)
+        })
+```
 
 ## setup 中如何获取组件实例
+- 在setup和其他Composition API中没有this
+- 可通过getCurrentIntance获取实例
+- 若使用Options API可照常使用this
 
 ## Vue3 为何比 Vue2 快
+- Proxy响应式
+- PatchFlag
+- hoistStatic
+- cacheHandler
+- SSR优化
+- tree-shaking
+
+### PatchFlag
+- 编译模板时，动态节点做标记
+- 标记时区分不同的类型，如 TEXT, PROPS
+- diff算法时，可以区分静态节点和其他不同类型的节点
+
+### hoistStatic
+- 将静态节点的定义，提升到父作用域缓存起来
+- 多个相邻的静态节点会被合并起来
+- 典型的拿空间换时间的优化策略
+
+### cacheHandler
+- 缓存事件
+
+### SSR优化
+- 静态节点直接输出，绕过了vdom
+- 动态节点，还是需要动态渲染
+
+### tree-shaking
+- 编译时，根据不同的情况引入不同的API
 
 ## Vite 是什么
+- 一个前端打包工具
+- 优势：开发环境下使用ES6 Module, 无需打包，启动快
+- 生产环境下使用rollup, 不会快很多
+
+```HTML
+<body>
+    <p>动态引入</p>
+    <button id="btn1">load1</button>
+    <button id="btn2">load2</button>
+
+    <script type="module">
+        document.getElementById('btn1').addEventListener('click', async () => {
+            const add = await import('./src/add.js')
+            const res = add.default(1, 2)
+            console.log('add res', res)
+        })
+        document.getElementById('btn2').addEventListener('click', async () => {
+            const { add, multi } = await import('./src/math.js')
+            console.log('add res', add(10, 20))
+            console.log('multi res', multi(10, 20))
+        })
+    </script>
+</body>
+```
 
 ## Compositon API 和 React Hooks 的对比
+| Compositon API      | React Hooks |
+| ----------- | ----------- |
+| setup只会被调用一次      | 函数会被多次调用      |
+| 无需使用useMemo,useCallback   |         |
+| 无需考虑调用顺序   |  须保证hooks顺序一致       |
+| reactive+ref更难理解   |  useState更好理解       |
