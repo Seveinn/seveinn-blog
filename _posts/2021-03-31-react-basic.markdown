@@ -107,6 +107,4 @@ setTimeout(() => {
 
 ## 组件生命周期
 ### 单组件生命周期
-
-
-![测试图片](vue-render-flow.jpg)
+![react单组件生命周期](react-lifecycle.png)
